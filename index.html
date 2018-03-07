@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Positron</title>
+    <link rel="stylesheet" type="text/css" href="node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <body>
+    <div id="list">
+      <table>
+        <thead>
+          <tr>
+            <th>Album</th>
+            <th>#</th>
+            <th>Title</th>
+            <th>Artist</th>
+          </tr>
+        </thead>
+        <tbody id="list-body">
+          <template id="list-row-template">
+            <tr class="list-row">
+              <td class="list-row-album">
+                <p class="list-row-album-name"></p>
+                <img class="list-row-album-artwork" src="">
+              </td>
+              <td class="list-row-track"></td>
+              <td class="list-row-title"></td>
+              <td class="list-row-artist"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <div id="title">
+    </div>
+    <div id="player">
+      <i id="play-pause-button"
+        class="fa fa-play"></i>
+      <div id="seek-clickable">
+        <div id="seek-bar">
+          <div id="seek-progress">
+          </div>
+        </div>
+      </div>
+    </div>
+    <audio style="display:none" autoplay></audio>
+    <script src="index.js"></script>
+  </body>
+</html>
