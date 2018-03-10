@@ -7,5 +7,6 @@ Also a music player.
 
 ```
 $ npm install
+$ npm run build
 $ npm start
 ```
