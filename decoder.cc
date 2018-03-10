@@ -50,7 +50,7 @@ namespace decoder {
     Local<Function> callback = Local<Function>::Cast(args[1]);
 
     // open wav file
-    printf("Opening WAV file: %s\n", fileName);
+    printf("\n\nOpening WAV file: %s\n", fileName);
     int wavFD = open(fileName, O_RDONLY);
     if( wavFD < 0 ) {
       isolate->ThrowException(Exception::TypeError(

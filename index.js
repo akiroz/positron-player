@@ -11,19 +11,22 @@ class Player {
   constructor() {
     this.playing = false;
     this.aCtx = new AudioContext();
-    this.src = this.aCtx.createBufferSource();
-    this.src.addEventListener('ended', this._onEnded);
-    this.src.connect(this.aCtx.destination);
     this.onStart = () => {};
     this.onStop = () => {};
   }
   play(fileName) {
+    if(this.src) {
+      this.src.stop();
+    }
     // Decode WAV and start playback
     decoder.decode(fileName, (samples, sampleRate, leftBuf, rightBuf) => {
       console.log(`Decoded sampleRate: ${sampleRate}, samples: ${samples}`);
       const buf = this.aCtx.createBuffer(2, samples, sampleRate);
       buf.copyToChannel(new Float32Array(leftBuf), 0);
       buf.copyToChannel(new Float32Array(rightBuf), 1);
+      this.src = this.aCtx.createBufferSource();
+      this.src.addEventListener('ended', this._onEnded.bind(this));
+      this.src.connect(this.aCtx.destination);
       this.src.buffer = buf;
       this.src.start();
       this.playing = true;
@@ -32,11 +35,15 @@ class Player {
   }
   pause() {
     this.src.stop();
-    this.playing = false;
-    this.onStop();
+  }
+  resume() {
+    this.src.start();
+    this.playing = true;
+    this.onStart();
   }
   _onEnded() {
     this.playing = false;
+    this.src = null;
     this.onStop();
   }
 }
@@ -46,16 +53,16 @@ const player = new Player();
 player.onStart = () => {
   playPauseButton.classList.remove('fa-play');
   playPauseButton.classList.add('fa-pause');
-}
+};
 
 player.onStop = () => {
   playPauseButton.classList.remove('fa-pause');
   playPauseButton.classList.add('fa-play');
-}
+};
 
 playPauseButton.addEventListener('click', e => {
-  if(player.playing) audio.pause();
-  else audio.play();
+  if(player.playing) player.pause();
+  else player.resume();
 });
 
 // templating elements
