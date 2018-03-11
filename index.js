@@ -1,6 +1,5 @@
 const database = require('./database.js');
 const decoder = require('./build/Release/decoder');
-const aCtx = new AudioContext();
 
 // DOM elements
 const title = document.querySelector('#title')
@@ -8,12 +7,23 @@ const list = document.querySelector('#list-body');
 const seekClickable = document.querySelector('#seek-clickable');
 const seekProgress = document.querySelector('#seek-progress');
 const playPauseButton = document.querySelector('#play-pause-button');
-const time = document.querySelector('#time')
-const duration = document.querySelector('#duration')
+const visualizer = document.querySelector('#visualizer');
+
+const aCtx = new AudioContext();
+
+visualizer.width = 1000;
+visualizer.height = 200;
+const vCtx = visualizer.getContext('2d');
 
 class Player {
   constructor() {
+    this.analyzer = aCtx.createAnalyser();
+    this.analyzer.fftSize = 2048;
+    this.specData = new Float32Array(this.analyzer.frequencyBinCount);
+    this.analyzer.connect(aCtx.destination);
+    this.dest = this.analyzer;
     this.updateProgress();
+    this.updateVisualizer();
   }
   updateProgress() {
     if(this.src && this.startTime && this.duration) {
@@ -23,6 +33,21 @@ class Player {
       }
     }
     window.requestAnimationFrame(this.updateProgress.bind(this));
+  }
+  updateVisualizer() {
+    this.analyzer.getFloatFrequencyData(this.specData);
+    vCtx.strokeStyle = "#87CEEB";
+    vCtx.lineWidth = "2";
+    vCtx.clearRect(0,0,1000,200);
+    vCtx.beginPath();
+    for(var i = 0; i < this.specData.length; i++) {
+      var x = Math.log(i+1)*150;
+      var y = -this.specData[i]*2-30;
+      if(i === 0) vCtx.moveTo(x,y);
+      else vCtx.lineTo(x,y);
+    }
+    vCtx.stroke();
+    window.requestAnimationFrame(this.updateVisualizer.bind(this));
   }
   onPlay() {
     playPauseButton.classList.remove('fa-play');
@@ -40,7 +65,7 @@ class Player {
       this.buf.copyToChannel(new Float32Array(rightBuf), 1);
       this.src = aCtx.createBufferSource();
       this.src.buffer = this.buf;
-      this.src.connect(aCtx.destination);
+      this.src.connect(this.dest);
       this.src.start();
       this.startTime = aCtx.currentTime;
       this.onPlay();
@@ -62,7 +87,7 @@ class Player {
     if(this.buf) {
       this.src = aCtx.createBufferSource();
       this.src.buffer = this.buf;
-      this.src.connect(aCtx.destination);
+      this.src.connect(this.dest);
       const offset = this.pauseTime - this.startTime;
       this.src.start(0, offset);
       this.startTime = aCtx.currentTime - offset;
@@ -74,7 +99,7 @@ class Player {
       if(this.src) this.stop();
       this.src = aCtx.createBufferSource();
       this.src.buffer = this.buf;
-      this.src.connect(aCtx.destination);
+      this.src.connect(this.dest);
       this.src.start(0, offset);
       this.startTime = aCtx.currentTime - offset;
       this.onPlay();

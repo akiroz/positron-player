@@ -73,3 +73,12 @@ body {
 .list-row-album-artwork {
   width: 10rem;
 }
+
+#visualizer {
+  position: absolute;
+  bottom: 0;
+  height: 5rem;
+  width: 100%;
+  z-index: -1;
+}
+
