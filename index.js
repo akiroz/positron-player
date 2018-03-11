@@ -24,6 +24,10 @@ class Player {
     }
     window.requestAnimationFrame(this.updateProgress.bind(this));
   }
+  onPlay() {
+    playPauseButton.classList.remove('fa-play');
+    playPauseButton.classList.add('fa-pause');
+  }
   play(fileName) {
     if(this.src) this.stop();
     // Decode WAV and start playback
@@ -39,6 +43,7 @@ class Player {
       this.src.connect(aCtx.destination);
       this.src.start();
       this.startTime = aCtx.currentTime;
+      this.onPlay();
     });
   }
   pause() {
@@ -46,6 +51,8 @@ class Player {
     this.src.stop();
     this.src.disconnect();
     this.src = null;
+    playPauseButton.classList.remove('fa-pause');
+    playPauseButton.classList.add('fa-play');
   }
   stop() {
     this.pause();
@@ -59,6 +66,7 @@ class Player {
       const offset = this.pauseTime - this.startTime;
       this.src.start(0, offset);
       this.startTime = aCtx.currentTime - offset;
+      this.onPlay();
     }
   }
   seek(offset) {
@@ -69,6 +77,7 @@ class Player {
       this.src.connect(aCtx.destination);
       this.src.start(0, offset);
       this.startTime = aCtx.currentTime - offset;
+      this.onPlay();
     }
   }
 }
@@ -76,14 +85,13 @@ class Player {
 const player = new Player();
 
 playPauseButton.addEventListener('click', e => {
-  if(player.src) {
-    player.pause();
-    playPauseButton.classList.remove('fa-pause');
-    playPauseButton.classList.add('fa-play');
-  } else {
-    player.resume();
-    playPauseButton.classList.remove('fa-play');
-    playPauseButton.classList.add('fa-pause');
+  if(player.src) player.pause();
+  else player.resume();
+});
+document.addEventListener('keydown', e => {
+  if(e.key === ' ') {
+    if(player.src) player.pause();
+    else player.resume();
   }
 });
 
