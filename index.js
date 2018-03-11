@@ -1,68 +1,97 @@
 const database = require('./database.js');
 const decoder = require('./build/Release/decoder');
+const aCtx = new AudioContext();
 
 // DOM elements
-const titleDisplay = document.querySelector('#title')
+const title = document.querySelector('#title')
 const list = document.querySelector('#list-body');
+const seekClickable = document.querySelector('#seek-clickable');
 const seekProgress = document.querySelector('#seek-progress');
 const playPauseButton = document.querySelector('#play-pause-button');
+const time = document.querySelector('#time')
+const duration = document.querySelector('#duration')
 
 class Player {
   constructor() {
-    this.playing = false;
-    this.aCtx = new AudioContext();
-    this.onStart = () => {};
-    this.onStop = () => {};
+    this.updateProgress();
+  }
+  updateProgress() {
+    if(this.src && this.startTime && this.duration) {
+      const p = (aCtx.currentTime - this.startTime) / this.duration;
+      if(0 <= p && p <= 1) {
+        seekProgress.style.width = `${p*100}%`;
+      }
+    }
+    window.requestAnimationFrame(this.updateProgress.bind(this));
   }
   play(fileName) {
-    if(this.src) {
-      this.src.stop();
-    }
+    if(this.src) this.stop();
     // Decode WAV and start playback
     decoder.decode(fileName, (samples, sampleRate, leftBuf, rightBuf) => {
-      console.log(`Decoded sampleRate: ${sampleRate}, samples: ${samples}`);
-      const buf = this.aCtx.createBuffer(2, samples, sampleRate);
-      buf.copyToChannel(new Float32Array(leftBuf), 0);
-      buf.copyToChannel(new Float32Array(rightBuf), 1);
-      this.src = this.aCtx.createBufferSource();
-      this.src.addEventListener('ended', this._onEnded.bind(this));
-      this.src.connect(this.aCtx.destination);
-      this.src.buffer = buf;
+      console.log(`Decoded: ${fileName}`);
+      console.log(`sampleRate: ${sampleRate}, samples: ${samples}`);
+      this.duration = samples / sampleRate;
+      this.buf = aCtx.createBuffer(2, samples, sampleRate);
+      this.buf.copyToChannel(new Float32Array(leftBuf), 0);
+      this.buf.copyToChannel(new Float32Array(rightBuf), 1);
+      this.src = aCtx.createBufferSource();
+      this.src.buffer = this.buf;
+      this.src.connect(aCtx.destination);
       this.src.start();
-      this.playing = true;
-      this.onStart();
+      this.startTime = aCtx.currentTime;
     });
   }
   pause() {
+    this.pauseTime = aCtx.currentTime;
     this.src.stop();
+    this.src.disconnect();
+    this.src = null;
+  }
+  stop() {
+    this.pause();
+    this.pauseTime = null;
   }
   resume() {
-    this.src.start();
-    this.playing = true;
-    this.onStart();
+    if(this.buf) {
+      this.src = aCtx.createBufferSource();
+      this.src.buffer = this.buf;
+      this.src.connect(aCtx.destination);
+      const offset = this.pauseTime - this.startTime;
+      this.src.start(0, offset);
+      this.startTime = aCtx.currentTime - offset;
+    }
   }
-  _onEnded() {
-    this.playing = false;
-    this.src = null;
-    this.onStop();
+  seek(offset) {
+    if(this.buf) {
+      if(this.src) this.stop();
+      this.src = aCtx.createBufferSource();
+      this.src.buffer = this.buf;
+      this.src.connect(aCtx.destination);
+      this.src.start(0, offset);
+      this.startTime = aCtx.currentTime - offset;
+    }
   }
 }
 
 const player = new Player();
 
-player.onStart = () => {
-  playPauseButton.classList.remove('fa-play');
-  playPauseButton.classList.add('fa-pause');
-};
-
-player.onStop = () => {
-  playPauseButton.classList.remove('fa-pause');
-  playPauseButton.classList.add('fa-play');
-};
-
 playPauseButton.addEventListener('click', e => {
-  if(player.playing) player.pause();
-  else player.resume();
+  if(player.src) {
+    player.pause();
+    playPauseButton.classList.remove('fa-pause');
+    playPauseButton.classList.add('fa-play');
+  } else {
+    player.resume();
+    playPauseButton.classList.remove('fa-play');
+    playPauseButton.classList.add('fa-pause');
+  }
+});
+
+seekClickable.addEventListener('click', e => {
+  const p = e.offsetX / e.target.clientWidth;
+  if(0 <= p && p <= 1) {
+    player.seek(p * player.duration);
+  }
 });
 
 // templating elements
@@ -102,25 +131,10 @@ database.forEach(album => {
     }
     const row = document.importNode(template.content, true);
     row.querySelector('.list-row').addEventListener('click', e => {
-      titleDisplay.textContent = `${track.title} - ${track.artist || album.artist}`;
+      title.textContent = `${track.title} - ${track.artist || album.artist}`;
       player.play(track.file);
     });
     list.appendChild(row);
   });
 });
 
-//document // update seek bar
-//  .querySelector('audio')
-//  .addEventListener('timeupdate', e => {
-//    const p = e.timeStamp / (e.target.duration*1000);
-//    console.log(p);
-//    if(0 <= p && p <= 1) {
-//      seekProgress.style.width = `${p*100}%`;
-//    }
-//  });
-
-//document // seek-bar click
-//  .querySelector('#seek-bar')
-//  .addEventListener('click', e => {
-//
-//  });

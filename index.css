@@ -22,6 +22,9 @@ body {
   text-align: left;
   padding: 0.5rem;
 }
+#list > table > tbody > tr {
+  cursor: pointer;
+}
 #list > table > tbody > tr > td {
   padding: 0.5rem;
 }
@@ -42,15 +45,17 @@ body {
 
 #play-pause-button {
   font-size: 2rem;
+  min-width: 2.5rem;
   cursor: pointer;
 }
 
 #seek-clickable {
   flex-grow: 1;
-  margin-left: 1.5rem;
-  height: 100%;
+  margin-left: 1rem;
+  padding: 1rem 0 1rem;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 #seek-bar {
