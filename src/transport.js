@@ -18,7 +18,7 @@ class Transport {
       }
     });
     this.seekClickable.addEventListener('click', e => {
-      const p = e.offsetX / e.target.clientWidth;
+      const p = e.offsetX / this.seekClickable.clientWidth;
       if(this.onSeek && 0 <= p && p <= 1) {
         this.onSeek(p);
       }
