@@ -93,7 +93,43 @@ const data = [
         file: "NO SONG NO LIFE/10. THERE IS A REASON.wav"
       }
     ]
-  }
+  },
+  {
+    album: "A Sugar Business",
+    artwork: "A Sugar Business/cover.jpeg",
+    tracks: [
+      {
+        track: 1,
+        title: "Thrives On",
+        artist: "Taishi, Electro.muster",
+        file: "A Sugar Business/1-Thrives On.mp3"
+      },
+      {
+        track: 2,
+        title: "Giant Killing",
+        artist: "Wata, WOM",
+        file: "A Sugar Business/2-Giant Killing.mp3"
+      },
+      {
+        track: 3,
+        title: "A Sugar Business",
+        artist: "Taishi, Electro.muster",
+        file: "A Sugar Business/3-A Sugar Business.mp3"
+      },
+      {
+        track: 4,
+        title: "Amazing Sweet",
+        artist: "Grok, WOM",
+        file: "A Sugar Business/4-Amazing Sweet.mp3"
+      },
+      {
+        track: 5,
+        title: "Think The Future -Club Extend-",
+        artist: "Taishi, Electro.muster",
+        file: "A Sugar Business/5-Think The Future -Club Extend-.mp3"
+      },
+    ]
+  },
 ];
 
 module.exports = data.map(album => {

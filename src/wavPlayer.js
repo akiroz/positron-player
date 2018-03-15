@@ -54,10 +54,12 @@ class WavPlayer {
     }
   }
   pause() {
-    this.pauseTime = this.ctx.currentTime;
-    this.src.stop();
-    this.src.disconnect();
-    this.src = null;
+    if(this.src) {
+      this.pauseTime = this.ctx.currentTime;
+      this.src.stop();
+      this.src.disconnect();
+      this.src = null;
+    }
     if(this.onPlayStateChange) {
       this.onPlayStateChange(false);
     }
