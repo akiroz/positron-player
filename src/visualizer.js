@@ -17,7 +17,7 @@ class Visualizer {
     this.ctx.clearRect(0,0,1000,200);
     this.ctx.beginPath();
     for(var i = 0; i < this.fft.length; i++) {
-      var x = Math.log(i+1)*180;
+      var x = Math.log(i+1)*165;
       var y = -this.fft[i]*2-30;
       if(i === 0) this.ctx.moveTo(x,y);
       else this.ctx.lineTo(x,y);
