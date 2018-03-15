@@ -132,25 +132,25 @@ const data = [
   },
   {
     album: "",
-    artist: "LeaF",
-    artwork: "Calamity Fortune/cover.jpg",
+    artist: "WAiKURO",
+    artwork: "AMAZING MIGHTYYYY!!!!/【maimaiPV確認】AMAZING MIGHTYYYY!!!! _WAiKURO-nH_2rssTJtM.jpg",
     tracks: [
       {
         track: 1,
-        title: "Calamity Fortune",
-        file: "Calamity Fortune/LeaF - Calamity Fortune-3zhG05LlROg.mkv"
+        title: "AMAZING MIGHTYYYY!!!!",
+        file: "AMAZING MIGHTYYYY!!!!/【maimaiPV確認】AMAZING MIGHTYYYY!!!! _WAiKURO-nH_2rssTJtM.mkv"
       },
     ]
   },
   {
     album: "",
-    artist: "nora2r",
-    artwork: "GO BACK 2 YOUR RAVE/[BGA]　GO BACK 2 YOUR RAVE　[G2R2014]-tkSxL_Y9ZJg.jpg",
+    artist: "Sakuzyo",
+    artwork: "天火明命/【音源】【PV確認用】天火明命（編集有り）-NknFuXq1NP4.jpg",
     tracks: [
       {
         track: 1,
-        title: "GO BACK 2 YOUR RAVE",
-        file: "GO BACK 2 YOUR RAVE/[BGA]　GO BACK 2 YOUR RAVE　[G2R2014]-tkSxL_Y9ZJg.mkv"
+        title: "天火明命",
+        file: "天火明命/【音源】【PV確認用】天火明命（編集有り）-NknFuXq1NP4.mkv"
       },
     ]
   },

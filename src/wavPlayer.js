@@ -76,6 +76,9 @@ class WavPlayer {
       this.src.connect(this.dest);
       this.src.start(0, offset);
       this.startTime = this.ctx.currentTime - offset;
+      if(this.onPlayStateChange) {
+        this.onPlayStateChange(true);
+      }
     }
   }
 }
