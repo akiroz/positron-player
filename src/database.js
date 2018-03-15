@@ -130,6 +130,42 @@ const data = [
       },
     ]
   },
+  {
+    album: "",
+    artist: "LeaF",
+    artwork: "Calamity Fortune/cover.jpg",
+    tracks: [
+      {
+        track: 1,
+        title: "Calamity Fortune",
+        file: "Calamity Fortune/LeaF - Calamity Fortune-3zhG05LlROg.mkv"
+      },
+    ]
+  },
+  {
+    album: "",
+    artist: "nora2r",
+    artwork: "GO BACK 2 YOUR RAVE/[BGA]　GO BACK 2 YOUR RAVE　[G2R2014]-tkSxL_Y9ZJg.jpg",
+    tracks: [
+      {
+        track: 1,
+        title: "GO BACK 2 YOUR RAVE",
+        file: "GO BACK 2 YOUR RAVE/[BGA]　GO BACK 2 YOUR RAVE　[G2R2014]-tkSxL_Y9ZJg.mkv"
+      },
+    ]
+  },
+  {
+    album: "",
+    artist: "uma vs. モリモリあつし",
+    artwork: "Re：End of a Dream/【BOFU2016】Re：End of a Dream _ uma vs. モリモリあつし【BGA】-ayg2A2JoRzg.jpg",
+    tracks: [
+      {
+        track: 1,
+        title: "Re：End of a Dream",
+        file: "Re：End of a Dream/【BOFU2016】Re：End of a Dream _ uma vs. モリモリあつし【BGA】-ayg2A2JoRzg.mkv"
+      },
+    ]
+  },
 ];
 
 module.exports = data.map(album => {

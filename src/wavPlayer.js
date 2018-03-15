@@ -24,6 +24,9 @@ class WavPlayer {
   connect(dest) {
     this.dest = dest;
   }
+  disconnect() {
+    this.pause();
+  }
   isPlaying() {
     return this.src != null;
   }

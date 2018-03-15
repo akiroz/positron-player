@@ -3,9 +3,11 @@ const Visualizer = require('../visualizer.js');
 const Transport = require('../transport.js');
 const WavPlayer = require('../wavPlayer.js');
 const AudioPlayer = require('../audioPlayer.js');
+const VideoPlayer = require('../videoPlayer.js');
 
 const audioCtx = new AudioContext();
 const audioPlayer = new AudioPlayer({ audioCtx });
+const videoPlayer = new VideoPlayer({ audioCtx, video: 'video' });
 const wavPlayer = new WavPlayer({ audioCtx });
 
 const visualizer = new Visualizer({
@@ -21,8 +23,12 @@ const transport = new Transport({
   seekProgress: '#seek-progress'
 });
 
-function connectPlayer(player) {
-  player.connect(visualizer.analyzer);
+function connectPlayer(player, isVideo) {
+  if(isVideo) {
+    player.connect(audioCtx.destination);
+  } else {
+    player.connect(visualizer.analyzer);
+  }
   transport.onPlayPause = _ => {
     if(player.isPlaying()) player.pause();
     else player.play();
@@ -32,6 +38,10 @@ function connectPlayer(player) {
   };
   player.onPlayStateChange = playing => {
     transport.setPlayState(playing);
+    if(isVideo) {
+      if(playing) videoSection.classList.add('video-section-show');
+      else videoSection.classList.remove('video-section-show');
+    }
   };
   player.onProgressUpdate = percent => {
     transport.setProgress(percent);
@@ -39,14 +49,24 @@ function connectPlayer(player) {
   return player;
 }
 
+const videoSection = document.querySelector('#video-section');
 let player = connectPlayer(wavPlayer);
 function playTrack(album, track) {
   transport.setTitle(`${track.title} - ${track.artist || album.artist}`);
   player.pause();
-  if(track.fileType === "WAV") {
-    player = connectPlayer(wavPlayer);
-  } else {
-    player = connectPlayer(audioPlayer);
+  player.disconnect();
+  switch(track.fileType) {
+    case "WAV":
+      player = connectPlayer(wavPlayer);
+      break;
+    case "MP3":
+    case "FLAC":
+      player = connectPlayer(audioPlayer);
+      break;
+    default:
+      player = connectPlayer(videoPlayer, true);
+      break;
+
   }
   player.play(track.file);
 }

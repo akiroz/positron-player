@@ -1,15 +1,15 @@
 
-class AudioPlayer {
-  constructor({ audioCtx }) {
+class VideoPlayer {
+  constructor({ audioCtx, video }) {
     this.ctx = audioCtx;
-    this.audio = new Audio();
-    this.audio.autoplay = true;
-    this.src = this.ctx.createMediaElementSource(this.audio);
+    this.video = document.querySelector(video);
+    this.video.autoplay = true;
+    this.src = this.ctx.createMediaElementSource(this.video);
     this.onPlayStateChange = null;
     this.onProgressUpdate = null;
-    this.audio.addEventListener('timeupdate', e => {
+    this.video.addEventListener('timeupdate', e => {
       if(this.onProgressUpdate) {
-        const p = this.audio.currentTime/this.audio.duration;
+        const p = this.video.currentTime/this.video.duration;
         this.onProgressUpdate(p);
       }
     });
@@ -21,30 +21,30 @@ class AudioPlayer {
     this.src.disconnect();
   }
   isPlaying() {
-    return !this.audio.paused;
+    return !this.video.paused;
   }
   play(fileName) {
     if(fileName) {
-      this.audio.src = fileName;
+      this.video.src = fileName;
     } else {
-      this.audio.play();
+      this.video.play();
     }
     if(this.onPlayStateChange) {
       this.onPlayStateChange(true);
     }
   }
   pause() {
-    this.audio.pause();
+    this.video.pause();
     if(this.onPlayStateChange) {
       this.onPlayStateChange(false);
     }
   }
   seek(p) {
     if(0 <= p && p <= 1) {
-      this.audio.currentTime = this.audio.duration * p;
+      this.video.currentTime = this.video.duration * p;
     }
   }
 }
 
-module.exports = AudioPlayer;
+module.exports = VideoPlayer;
 
