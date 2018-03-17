@@ -8,5 +8,5 @@ Also a music player.
 ```
 $ npm install
 $ npm run build
-$ npm start
+$ npm start config0.js
 ```
