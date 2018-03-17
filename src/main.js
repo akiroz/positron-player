@@ -1,5 +1,9 @@
+const { app, ipcMain, BrowserWindow } = require('electron');
+const config = require(`${process.cwd()}/${process.argv[2]}`);
 
-const { app, BrowserWindow } = require('electron');
+ipcMain.on('get-config', e => {
+  e.returnValue = config;
+});
 
 let win;
 app.on('ready', _ => {

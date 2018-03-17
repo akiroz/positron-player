@@ -15,7 +15,7 @@ body {
   overflow-y: scroll;
 }
 #list > table {
-  margin: 1rem;
+  padding: 1rem;
   width: 100%;
 }
 #list > table > thead > tr > th {

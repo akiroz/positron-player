@@ -1,4 +1,6 @@
 const database = require('../database.js');
+const p2p = require('../p2p.js');
+
 const Visualizer = require('../visualizer.js');
 const Transport = require('../transport.js');
 const WavPlayer = require('../wavPlayer.js');
@@ -47,6 +49,7 @@ function connectPlayer(player, isVideo) {
     player.seek(percent);
   };
   player.onPlayStateChange = playing => {
+    console.log(`play state: ${playing?'|>':'||'}`);
     transport.setPlayState(playing);
     if(isVideo) {
       if(playing) videoSection.classList.add('video-section-show');
@@ -78,7 +81,8 @@ function playTrack(album, track) {
       break;
 
   }
-  player.play(track.file);
+  const firstPeer = album.peers.values().next().value;
+  player.play(`http://${firstPeer}/${track.file}`);
 }
 
 const list = document.querySelector('#list-body');
@@ -98,11 +102,11 @@ const templateArtist =
 const templateFileType =
   template.content.querySelector('.list-row-file-type');
 
-database.getAlbums(albums => {
-  // iterate albums
-  albums.forEach(album => {
+p2p.onListUpdate(albums => {
+  Object.values(albums).forEach(album => {
+    const firstPeer = album.peers.values().next().value;
     templateAlbumName.textContent = album.album;
-    templateAlbumArtwork.src = album.artwork;
+    templateAlbumArtwork.src = `http://${firstPeer}/${album.artwork}`;
     templateArtist.textContent = album.artist;
     templateAlbum.rowSpan = album.tracks.length;
     let firstTrack = true;
