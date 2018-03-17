@@ -4,7 +4,6 @@ class Transport {
     this.playPauseButton = document.querySelector(playPauseButton);
     this.seekClickable = document.querySelector(seekClickable);
     this.seekProgress = document.querySelector(seekProgress);
-    this.title = document.querySelector(title)
     this.onPlayPause = null;
     this.onSeek = null;
     this.playPauseButton.addEventListener('click', e => {
@@ -39,7 +38,7 @@ class Transport {
     }
   }
   setTitle(text) {
-    this.title.textContent = text;
+    document.title = text;
   }
 }
 

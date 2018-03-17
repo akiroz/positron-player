@@ -6,7 +6,7 @@ class Visualizer {
     this.visualizer.height = 200;
     this.ctx = this.visualizer.getContext('2d');
     this.ctx.strokeStyle = "#87CEEB";
-    this.ctx.lineWidth = "2";
+    this.ctx.lineWidth = "4";
     this.analyzer = audioCtx.createAnalyser();
     this.analyzer.fftSize = 1024;
     this.fft = new Float32Array(this.analyzer.frequencyBinCount);

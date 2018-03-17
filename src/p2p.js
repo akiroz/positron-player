@@ -13,7 +13,7 @@ app.get('/db', (req, res) => {
   res.end();
 });
 
-app.use('/media', express.static('media'));
+app.use('/media', express.static(mediaPath));
 
 const server = http.createServer(app).listen();
 app.set('port', server.address().port);

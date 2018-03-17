@@ -29,7 +29,6 @@ const visualizer = new Visualizer({
 visualizer.analyzer.connect(audioCtx.destination);
 
 const transport = new Transport({
-  title: '#title',
   playPauseButton: '#play-pause-button',
   seekClickable: '#seek-clickable',
   seekProgress: '#seek-progress'
