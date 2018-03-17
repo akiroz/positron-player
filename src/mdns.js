@@ -1,7 +1,5 @@
 const mdns = require('mdns');
 const IPv6 = require('ip-address').Address6;
-const { ipcRenderer } = require('electron')
-const { nodeID } = ipcRenderer.sendSync('get-config');
 
 window.positronPeers = {};
 
@@ -12,24 +10,25 @@ function setPeerUpdateHandler(f) {
 
 // search for peers
 const positronBrowser = mdns.createBrowser(mdns.tcp('positron'));
-positronBrowser.on('serviceUp', ({ addresses, port, txtRecord }) => {
-  if(txtRecord.nodeID) {
-    // add peer
-    console.log(`New peer: ${txtRecord.nodeID}`);
-    positronPeers[txtRecord.nodeID] = {
+positronBrowser.on('serviceUp', ({ addresses, port, name }) => {
+  // add peer
+  if(!positronPeers.hasOwnProperty[name]) {
+    positronPeers[name] = {
       addresses: addresses.filter(a => !(new IPv6(a).isValid())),
-      port
+      port, name
     };
-    peerUpdateHandler(positronPeers[txtRecord.nodeID], positronPeers);
+    peerUpdateHandler(true, positronPeers[name], positronPeers);
   }
+});
+positronBrowser.on('serviceDown', ({ name }) => {
+  delete positronPeers[name];
+  peerUpdateHandler(false, name, positronPeers);
 });
 positronBrowser.start();
 
 function advertiseServer(port) {
   mdns.createAdvertisement(
-    mdns.tcp('positron'), port, {
-      txtRecord: { nodeID }
-    }
+    mdns.tcp('positron'), port
   ).start();
 }
 

@@ -81,7 +81,7 @@ function playTrack(album, track) {
       break;
 
   }
-  const firstPeer = album.peers.values().next().value;
+  const firstPeer = Object.values(album.peers)[0];
   player.play(`http://${firstPeer}/${track.file}`);
 }
 
@@ -101,10 +101,13 @@ const templateArtist =
   template.content.querySelector('.list-row-artist');
 const templateFileType =
   template.content.querySelector('.list-row-file-type');
+const templateNodes =
+  template.content.querySelector('.list-row-nodes');
 
 p2p.onListUpdate(albums => {
+  list.innerHTML = '';
   Object.values(albums).forEach(album => {
-    const firstPeer = album.peers.values().next().value;
+    const firstPeer = Object.values(album.peers)[0];
     templateAlbumName.textContent = album.album;
     templateAlbumArtwork.src = `http://${firstPeer}/${album.artwork}`;
     templateArtist.textContent = album.artist;
@@ -124,6 +127,7 @@ p2p.onListUpdate(albums => {
         templateArtist.textContent = track.artist;
       }
       templateFileType.textContent = track.fileType;
+      templateNodes.textContent = Object.values(album.peers).join(' ');
       const row = document.importNode(template.content, true);
       row.querySelector('.list-row')
         .addEventListener('click', e => playTrack(album, track));

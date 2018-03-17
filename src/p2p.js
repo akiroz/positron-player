@@ -27,20 +27,31 @@ function setListUpdateHandler(f) {
   listUpdateHandler = f;
 }
 
-onPeerUpdate(peerEntry => {
-  const host = peerEntry.addresses[0];
-  const peer = `${host}:${peerEntry.port}`;
-  fetch(`http://${peer}/db`).then(r => r.json()).then(albums => {
-    albums.forEach(album => {
-      if(positronAlbums.hasOwnProperty(album.album)) {
-        positronAlbums[album.album].peers.add(peer);
-      } else {
-        positronAlbums[album.album] = album;
-        positronAlbums[album.album].peers = new Set([peer]);
+onPeerUpdate((added, peerEntry) => {
+  if(added) {
+    const host = peerEntry.addresses[0];
+    const peer = `${host}:${peerEntry.port}`;
+    fetch(`http://${peer}/db`).then(r => r.json()).then(albums => {
+      albums.forEach(album => {
+        if(positronAlbums.hasOwnProperty(album.album)) {
+          positronAlbums[album.album].peers[peerEntry.name] = peer;
+        } else {
+          positronAlbums[album.album] = album;
+          positronAlbums[album.album].peers = {[peerEntry.name]: peer};
+        }
+      });
+      listUpdateHandler(positronAlbums);
+    });
+  } else {
+    Object.entries(positronAlbums).forEach(([name, album]) => {
+      if(album.peers.hasOwnProperty(peerEntry)) {
+        delete positronAlbums[name].peers[peerEntry];
+        if(Object.keys(positronAlbums[name].peers).length === 0) {
+          delete positronAlbums[name];
+        }
       }
     });
-    listUpdateHandler(positronAlbums);
-  });
+  }
 });
 
 module.exports = {
