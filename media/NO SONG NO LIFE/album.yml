@@ -1,0 +1,17 @@
+tracks:
+  - track: 1
+    title: Overture
+    artist: Yoshiaki Fujisawa
+    file: 01. Overture.wav
+  - track: 5
+    title: Bias Hacker
+    artist: Ai Kayano & Yoko Hikasa & Yukari Tamura
+    file: 05. Bias Hacker.wav
+  - track: 9
+    title: This game
+    artist: Konomi Suzuki
+    file: 09. This game.wav
+  - track: 10
+    title: THERE IS A REASON
+    artist: Konomi Suzuki
+    file: 10. THERE IS A REASON.wav
