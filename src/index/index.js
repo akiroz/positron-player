@@ -6,9 +6,19 @@ const AudioPlayer = require('../audioPlayer.js');
 const VideoPlayer = require('../videoPlayer.js');
 
 const audioCtx = new AudioContext();
-const audioPlayer = new AudioPlayer({ audioCtx });
-const videoPlayer = new VideoPlayer({ audioCtx, video: 'video' });
-const wavPlayer = new WavPlayer({ audioCtx });
+
+const audioPlayer = new AudioPlayer({
+  audioCtx
+});
+
+const videoPlayer = new VideoPlayer({
+  audioCtx,
+  video: 'video'
+});
+
+const wavPlayer = new WavPlayer({
+  audioCtx
+});
 
 const visualizer = new Visualizer({
   audioCtx,
@@ -88,31 +98,33 @@ const templateArtist =
 const templateFileType =
   template.content.querySelector('.list-row-file-type');
 
-// iterate albums
-database.forEach(album => {
-  templateAlbumName.textContent = album.album;
-  templateAlbumArtwork.src = album.artwork;
-  templateArtist.textContent = album.artist;
-  templateAlbum.rowSpan = album.tracks.length;
-  let firstTrack = true;
-  // iterate tracks
-  album.tracks.forEach(track => {
-    if(firstTrack) {
-      templateAlbum.style.display = "table-cell";
-      firstTrack = false;
-    } else {
-      templateAlbum.style.display = "none";
-    }
-    templateTrack.textContent = track.track;
-    templateTitle.textContent = track.title;
-    if(track.artist) {
-      templateArtist.textContent = track.artist;
-    }
-    templateFileType.textContent = track.fileType;
-    const row = document.importNode(template.content, true);
-    row.querySelector('.list-row')
-      .addEventListener('click', e => playTrack(album, track));
-    list.appendChild(row);
+database.getAlbums(albums => {
+  // iterate albums
+  albums.forEach(album => {
+    templateAlbumName.textContent = album.album;
+    templateAlbumArtwork.src = album.artwork;
+    templateArtist.textContent = album.artist;
+    templateAlbum.rowSpan = album.tracks.length;
+    let firstTrack = true;
+    // iterate tracks
+    album.tracks.forEach(track => {
+      if(firstTrack) {
+        templateAlbum.style.display = "table-cell";
+        firstTrack = false;
+      } else {
+        templateAlbum.style.display = "none";
+      }
+      templateTrack.textContent = track.track;
+      templateTitle.textContent = track.title;
+      if(track.artist) {
+        templateArtist.textContent = track.artist;
+      }
+      templateFileType.textContent = track.fileType;
+      const row = document.importNode(template.content, true);
+      row.querySelector('.list-row')
+        .addEventListener('click', e => playTrack(album, track));
+      list.appendChild(row);
+    });
   });
 });
 

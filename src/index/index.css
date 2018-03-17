@@ -11,6 +11,7 @@ body {
 }
 
 #list {
+  flex-grow: 1;
   overflow-y: scroll;
 }
 #list > table {
@@ -29,7 +30,6 @@ body {
 }
 
 footer {
-  flex-grow: 0;
   border-top: 1px solid #FFF;
 }
 

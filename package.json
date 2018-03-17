@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "font-awesome": "^4.7.0",
+    "js-yaml": "^3.11.0",
     "nan": "^2.9.2"
   }
 }
