@@ -9,52 +9,49 @@ function setListUpdateHandler(f) {
   listUpdateHandler = f;
 }
 
-// handle peer update
-function peerUpdateHandler(added, peerEntry) {
-  if(added) {
-    const host = peerEntry.addresses[0];
-    const peer = `${host}:${peerEntry.port}`;
+// search for peers
+const positronBrowser = mdns.createBrowser(mdns.tcp('positron'));
+
+// Add peer
+positronBrowser.on('serviceUp', ({ addresses, port, name }) => {
+  if(!positronPeers.hasOwnProperty[name]) {
+    positronPeers[name] = {
+      addresses: addresses.filter(a => !(new IPv6(a).isValid())),
+      port,
+      name
+    };
+    // use first address
+    const host = positronPeers[name].addresses[0];
+    const peer = `${host}:${positronPeers[name].port}`;
+    // fetch album list
     fetch(`http://${peer}/db`).then(r => r.json()).then(albums => {
       albums.forEach(album => {
         if(positronAlbums.hasOwnProperty(album.album)) {
-          positronAlbums[album.album].peers[peerEntry.name] = peer;
+          positronAlbums[album.album].peers[name] = peer;
         } else {
           positronAlbums[album.album] = album;
-          positronAlbums[album.album].peers = {[peerEntry.name]: peer};
+          positronAlbums[album.album].peers = {[name]: peer};
         }
       });
       listUpdateHandler(positronAlbums);
     });
-  } else {
-    Object.entries(positronAlbums).forEach(([name, album]) => {
-      if(album.peers.hasOwnProperty(peerEntry)) {
-        delete positronAlbums[name].peers[peerEntry];
-        if(Object.keys(positronAlbums[name].peers).length === 0) {
-          delete positronAlbums[name];
-        }
-      }
-    });
-    listUpdateHandler(positronAlbums);
   }
-}
+});
 
-// search for peers
-const positronBrowser = mdns.createBrowser(mdns.tcp('positron'));
-positronBrowser.on('serviceUp', ({ addresses, port, name }) => {
-  // add peer
-  if(!positronPeers.hasOwnProperty[name]) {
-    positronPeers[name] = {
-      addresses: addresses.filter(a => !(new IPv6(a).isValid())),
-      port, name
-    };
-    peerUpdateHandler(true, positronPeers[name], positronPeers);
-  }
+// Remoe peer
+positronBrowser.on('serviceDown', ({ name: peerName }) => {
+  delete positronPeers[peerName];
+  Object.entries(positronAlbums).forEach(([name, album]) => {
+    if(album.peers.hasOwnProperty(peerName)) {
+      delete positronAlbums[name].peers[peerName];
+      if(Object.keys(positronAlbums[name].peers).length === 0) {
+        delete positronAlbums[name];
+      }
+    }
+  });
+  listUpdateHandler(positronAlbums);
 });
-positronBrowser.on('serviceDown', ({ name }) => {
-  console.log('Service Down: ', name);
-  delete positronPeers[name];
-  peerUpdateHandler(false, name, positronPeers);
-});
+
 positronBrowser.start();
 
 module.exports = {
