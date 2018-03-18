@@ -5,6 +5,8 @@ const mdns = require('mdns');
 const database = require('./database.js');
 const wavDecoder = require('../build/Release/decoder');
 
+let serviceAd = null;
+
 module.exports = {
   start(mediaPath) {
     const app = express();
@@ -46,9 +48,15 @@ module.exports = {
     const server = http.createServer(app).listen();
     app.set('port', server.address().port);
 
-    mdns.createAdvertisement(
+    serviceAd = mdns.createAdvertisement(
       mdns.tcp('positron'),
       server.address().port
-    ).start();
+    );
+    serviceAd.start();
+  },
+  stop() {
+    if(serviceAd) serviceAd.stop();
   }
 };
+
+

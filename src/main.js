@@ -8,13 +8,21 @@ if(!process.argv[2]) {
 const config = require(`${process.cwd()}/${process.argv[2]}`);
 httpServer.start(config.mediaPath);
 
-ipcMain.on('get-config', e => {
-  e.returnValue = config;
-});
+function die() {
+  console.log('killed');
+  httpServer.stop();
+  process.exit();
+}
+process.on("SIGHUP", die);
+process.on("SIGINT", die);
+process.on("SIGQUIT", die);
+process.on("SIGABRT", die);
+process.on("SIGTERM", die);
 
 let win;
 app.on('ready', _ => {
   win = new BrowserWindow();
+  win.on('close', die);
   win.loadURL(`file://${__dirname}/index/index.html`);
 });
 

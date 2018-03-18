@@ -34,6 +34,7 @@ function peerUpdateHandler(added, peerEntry) {
         }
       }
     });
+    listUpdateHandler(positronAlbums);
   }
 }
 
@@ -50,6 +51,7 @@ positronBrowser.on('serviceUp', ({ addresses, port, name }) => {
   }
 });
 positronBrowser.on('serviceDown', ({ name }) => {
+  console.log('Service Down: ', name);
   delete positronPeers[name];
   peerUpdateHandler(false, name, positronPeers);
 });
