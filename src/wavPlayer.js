@@ -1,10 +1,10 @@
 
-const wavDecoder = require('../build/Release/decoder');
-
 class WavPlayer {
   constructor({ audioCtx }) {
     this.ctx = audioCtx;
     this.src = null;
+    this.samples = null;
+    this.sampleRate = null;
     this.buf = null;
     this.dest = null;
     this.duration = null;
@@ -30,14 +30,26 @@ class WavPlayer {
   isPlaying() {
     return this.src != null;
   }
-  play(fileName) {
-    if(fileName) {
+  play(url) {
+    if(url) {
       if(this.src) this.pause();
-      wavDecoder.decode(fileName, (samples, sampleRate, leftBuf, rightBuf) => {
-        this.duration = samples / sampleRate;
-        this.buf = this.ctx.createBuffer(2, samples, sampleRate);
-        this.buf.copyToChannel(new Float32Array(leftBuf), 0);
-        this.buf.copyToChannel(new Float32Array(rightBuf), 1);
+      fetch(
+        url, { method: 'head' }
+      ).then(({ headers }) => {
+        this.samples = headers.get('X-Positron-Samples');
+        this.sampleRate = headers.get('X-Positron-SampleRate');
+        this.duration = this.samples / this.sampleRate;
+        this.buf = this.ctx.createBuffer(2, this.samples, this.sampleRate);
+        // TODO: fetch from multiple nodes
+        return fetch(url);
+      }).then(res => res.arrayBuffer()).then(buf => {
+        const lrBuf = new Float32Array(buf);
+        const leftBuf = this.buf.getChannelData(0);
+        const rightBuf = this.buf.getChannelData(1);
+        for(var i = 0; i < this.samples; i++) {
+          leftBuf[i] = lrBuf[i*2];
+          rightBuf[i] = lrBuf[i*2+1];
+        }
         this.src = this.ctx.createBufferSource();
         this.src.buffer = this.buf;
         this.src.connect(this.dest);

@@ -18,6 +18,7 @@ namespace decoder {
   using v8::Object;
   using v8::String;
   using v8::Value;
+  using v8::Boolean;
   using v8::Function;
   using v8::ArrayBuffer;
   using v8::Float32Array;
@@ -31,19 +32,22 @@ namespace decoder {
     Isolate* isolate = args.GetIsolate();
 
     // check arguments
-    if(!( args.Length() == 2 &&
+    if(!( args.Length() == 3 &&
           args[0]->IsString() &&
-          args[1]->IsFunction()
+          args[1]->IsBoolean() &&
+          args[2]->IsFunction()
         )) {
       isolate->ThrowException(Exception::TypeError(
-            String::NewFromUtf8(isolate, "Invalid args: decode(fileName, callback)")));
+            String::NewFromUtf8(isolate,
+              "Invalid args: decode(fileName, returnData, callback)")));
       return;
     }
 
     // get arguments
     String::Utf8Value fileNameUtf8(args[0]->ToString());
     const char* fileName = ToCString(fileNameUtf8);
-    Local<Function> callback = Local<Function>::Cast(args[1]);
+    bool returnData = Local<Boolean>::Cast(args[1])->Value();
+    Local<Function> callback = Local<Function>::Cast(args[2]);
 
     // open wav file
     printf("\n\nOpening WAV file: %s\n", fileName);
@@ -94,38 +98,47 @@ namespace decoder {
       return;
     }
 
-    // Read data into JS array buffer
+    // Compute params
     int samples = (wavFile->overall_size - 36) / wavFile->sample_alignment;
     int channelSize = wavFile->sample_alignment / wavFile->channels;
-    int bufferSize = samples*4;
+    int bufferSize = samples*2*4;
     printf("samples: %d\n", samples);
     printf("channelSize: %d\n", channelSize);
     printf("bufferSize: %d\n", bufferSize);
-    Local<ArrayBuffer> leftBuffer = ArrayBuffer::New(isolate, bufferSize);
-    Local<ArrayBuffer> rightBuffer = ArrayBuffer::New(isolate, bufferSize);
-    Local<Float32Array> leftChannel = Float32Array::New(leftBuffer, 0, bufferSize);
-    Local<Float32Array> rightChannel = Float32Array::New(rightBuffer, 0, bufferSize);
-    Nan::TypedArrayContents<float> leftArr(leftChannel);
-    Nan::TypedArrayContents<float> rightArr(rightChannel);
-    for(int i = 0; i < samples; i++) {
-      float leftSample = (float)((short*) wavFile->data)[i*2];
-      float rightSample = (float)((short*) wavFile->data)[i*2+1];
-      (*leftArr)[i] = leftSample / SHRT_MAX;
-      (*rightArr)[i] = rightSample / SHRT_MAX;
-    }
 
-    // return result via callback
-    // callback(samples, sampleRate, leftBuffer, rightBuffer);
-    // sampleRate: Hz
-    // channelData: ArrayBuffer(Float32Array)
-    const unsigned argc = 4;
-    Local<Value> argv[argc] = {
-      Integer::New(isolate, samples),
-      Integer::New(isolate, wavFile->sample_rate),
-      leftBuffer,
-      rightBuffer
-    };
-    callback->Call(Null(isolate), argc, argv);
+    if(returnData) {
+
+      // Read data into JS array buffer
+      Local<ArrayBuffer> buf = ArrayBuffer::New(isolate, bufferSize);
+      Local<Float32Array> chan = Float32Array::New(buf, 0, bufferSize);
+      Nan::TypedArrayContents<float> arr(chan);
+      for(int i = 0; i < samples*2; i++) {
+        float sample = (float)((short*) wavFile->data)[i];
+        (*arr)[i] = sample / SHRT_MAX;
+      }
+
+      // return result via callback
+      // callback(samples, sampleRate, buf);
+      // sampleRate: Hz
+      // buf: ArrayBuffer(Float32Array)
+      const unsigned argc = 3;
+      Local<Value> argv[argc] = {
+        Integer::New(isolate, samples),
+        Integer::New(isolate, wavFile->sample_rate),
+        buf
+      };
+      callback->Call(Null(isolate), argc, argv);
+
+    } else {
+    
+      // return result via callback
+      const unsigned argc = 2;
+      Local<Value> argv[argc] = {
+        Integer::New(isolate, samples),
+        Integer::New(isolate, wavFile->sample_rate),
+      };
+      callback->Call(Null(isolate), argc, argv);
+    }
 
     // unmap & close file
     munmap(wavFile, wavSD.st_size);
