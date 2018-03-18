@@ -9,7 +9,6 @@ const config = require(`${process.cwd()}/${process.argv[2]}`);
 httpServer.start(config.mediaPath);
 
 function die() {
-  console.log('killed');
   httpServer.stop();
   process.exit();
 }

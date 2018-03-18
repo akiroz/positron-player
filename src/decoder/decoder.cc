@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include <limits.h>
 
 #include <node.h>
 #include <nan.h>
 
-#include "mmap.h"
 #include "wav_header.h"
 
 namespace decoder {
