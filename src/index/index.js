@@ -1,6 +1,4 @@
-const database = require('../database.js');
 const p2p = require('../p2p.js');
-
 const Visualizer = require('../visualizer.js');
 const Transport = require('../transport.js');
 const WavPlayer = require('../wavPlayer.js');
