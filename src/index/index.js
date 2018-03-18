@@ -65,21 +65,23 @@ function playTrack(album, track) {
   transport.setTitle(`${track.title} - ${track.artist || album.artist}`);
   player.pause();
   player.disconnect();
+  const firstPeer = Object.values(album.peers)[0];
   switch(track.fileType) {
     case "WAV":
       player = connectPlayer(wavPlayer);
+      player.play(Object.values(album.peers)
+        .map(p => `http://${p}/${track.file}`));
       break;
     case "MP3":
     case "FLAC":
       player = connectPlayer(audioPlayer);
+      player.play(`http://${firstPeer}/${track.file}`);
       break;
     default:
       player = connectPlayer(videoPlayer, true);
+      player.play(`http://${firstPeer}/${track.file}`);
       break;
-
   }
-  const firstPeer = Object.values(album.peers)[0];
-  player.play(`http://${firstPeer}/${track.file}`);
 }
 
 const list = document.querySelector('#list-body');

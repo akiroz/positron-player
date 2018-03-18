@@ -30,18 +30,19 @@ class WavPlayer {
   isPlaying() {
     return this.src != null;
   }
-  play(url) {
-    if(url) {
+  play(urlList) {
+    if(urlList) {
       if(this.src) this.pause();
       fetch(
-        url, { method: 'head' }
+        urlList[0], { method: 'head' }
       ).then(({ headers }) => {
         this.samples = headers.get('X-Positron-Samples');
         this.sampleRate = headers.get('X-Positron-SampleRate');
         this.duration = this.samples / this.sampleRate;
         this.buf = this.ctx.createBuffer(2, this.samples, this.sampleRate);
         // TODO: fetch from multiple nodes
-        return fetch(url);
+        console.log('WAV sources: ', urlList);
+        return fetch(urlList[0]);
       }).then(res => res.arrayBuffer()).then(buf => {
         const lrBuf = new Float32Array(buf);
         const leftBuf = this.buf.getChannelData(0);
