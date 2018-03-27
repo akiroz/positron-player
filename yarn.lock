@@ -410,6 +410,13 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
 
+express-range@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/express-range/-/express-range-2.0.1.tgz#aa4cf2b08c75383f360a8d30119c9d559dcf330a"
+  dependencies:
+    http-content-range-format "^1.0.0"
+    http-range-parse "^1.0.0"
+
 express@^4.16.3:
   version "4.16.3"
   resolved "https://registry.yarnpkg.com/express/-/express-4.16.3.tgz#6af8a502350db3246ecc4becf6b5a34d22f7ed53"
@@ -636,6 +643,10 @@ hosted-git-info@^2.1.4:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.5.0.tgz#6d60e34b3abbc8313062c3b798ef8d901a07af3c"
 
+http-content-range-format@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/http-content-range-format/-/http-content-range-format-1.0.0.tgz#1fa2851f24d297575af7a1488d63de02e4b84378"
+
 http-errors@1.6.2, http-errors@~1.6.2:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/http-errors/-/http-errors-1.6.2.tgz#0a002cc85707192a7e7946ceedc11155f60ec736"
@@ -644,6 +655,10 @@ http-errors@1.6.2, http-errors@~1.6.2:
     inherits "2.0.3"
     setprototypeof "1.0.3"
     statuses ">= 1.3.1 < 2"
+
+http-range-parse@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/http-range-parse/-/http-range-parse-1.0.0.tgz#481582bdb5c38838d78496bfdf956a716b8b9952"
 
 http-signature@~1.2.0:
   version "1.2.0"

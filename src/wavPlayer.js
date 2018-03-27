@@ -30,41 +30,12 @@ class WavPlayer {
   isPlaying() {
     return this.src != null;
   }
-  play(urlList) {
-    if(urlList) {
-      if(this.src) this.pause();
-      fetch(
-        urlList[0], { method: 'head' }
-      ).then(({ headers }) => {
-        this.samples = headers.get('X-Positron-Samples');
-        this.sampleRate = headers.get('X-Positron-SampleRate');
-        this.duration = this.samples / this.sampleRate;
-        this.buf = this.ctx.createBuffer(2, this.samples, this.sampleRate);
-        // TODO: fetch from multiple nodes
-        console.log('WAV sources: ', urlList);
-        return fetch(urlList[0]);
-      }).then(res => res.arrayBuffer()).then(buf => {
-        const lrBuf = new Float32Array(buf);
-        const leftBuf = this.buf.getChannelData(0);
-        const rightBuf = this.buf.getChannelData(1);
-        for(var i = 0; i < this.samples; i++) {
-          leftBuf[i] = lrBuf[i*2];
-          rightBuf[i] = lrBuf[i*2+1];
-        }
-        this.src = this.ctx.createBufferSource();
-        this.src.buffer = this.buf;
-        this.src.connect(this.dest);
-        this.src.start();
-        this.startTime = this.ctx.currentTime;
-      });
-    } else if(this.buf) {
-      const offset = this.pauseTime - this.startTime;
-      this.src = this.ctx.createBufferSource();
-      this.src.buffer = this.buf;
-      this.src.connect(this.dest);
-      this.src.start(0, offset);
-      this.startTime = this.ctx.currentTime - offset;
-    }
+  _start(offset = 0) {
+    this.src = this.ctx.createBufferSource();
+    this.src.buffer = this.buf;
+    this.src.connect(this.dest);
+    this.src.start(0, offset);
+    this.startTime = this.ctx.currentTime - offset;
     if(this.onPlayStateChange) {
       this.onPlayStateChange(true);
     }
@@ -83,15 +54,37 @@ class WavPlayer {
   seek(p) {
     if(this.buf && 0 <= p && p <= 1) {
       if(this.src) this.pause();
-      const offset = this.duration * p;
-      this.src = this.ctx.createBufferSource();
-      this.src.buffer = this.buf;
-      this.src.connect(this.dest);
-      this.src.start(0, offset);
-      this.startTime = this.ctx.currentTime - offset;
-      if(this.onPlayStateChange) {
-        this.onPlayStateChange(true);
+      this._start(this.duration * p);
+    }
+  }
+  async play(urlList) {
+    if(urlList) {
+      if(this.src) this.pause();
+      const { headers } = await fetch(urlList[0], {method: 'head'});
+      this.samples = headers.get('X-Positron-Samples');
+      this.sampleRate = headers.get('X-Positron-SampleRate');
+      this.duration = this.samples / this.sampleRate;
+      this.buf = this.ctx.createBuffer(2, this.samples, this.sampleRate);
+      const leftBuf = this.buf.getChannelData(0);
+      const rightBuf = this.buf.getChannelData(1);
+      const chunks = 8;
+      let chunkSize = Math.floor(this.samples / chunks);
+      for(let i = 0; i < chunks; i++) {
+        const src = urlList[i % urlList.length];
+        const off = i*chunkSize;
+        const len = (i < chunks-1)? chunkSize: this.samples - chunkSize*i;
+        const resp = await fetch(src, {headers: {
+          Range: `samples=${off}-${off+len-1}`
+        }});
+        const buf = new Float32Array(await resp.arrayBuffer());
+        for(let s = off; s < off+len; s++) {
+          leftBuf[s] = buf[(s-off)*2];
+          rightBuf[s] = buf[(s-off)*2+1];
+        }
+        if(i === 0) this._start();
       }
+    } else if(this.buf) {
+      this._start(this.pauseTime - this.startTime);
     }
   }
 }

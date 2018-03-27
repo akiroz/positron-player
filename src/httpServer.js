@@ -1,5 +1,6 @@
-const cors = require('cors');
 const express = require('express');
+const cors = require('cors');
+const range = require('express-range');
 const http = require('http');
 const mdns = require('mdns');
 const database = require('./database.js');
@@ -14,6 +15,8 @@ module.exports = {
     app.use(cors({
       exposedHeaders: ['X-Positron-Samples', 'X-Positron-SampleRate']
     }));
+
+    app.use(range({ accept: 'samples' }));
 
     const localAlbums = database.getLocalAlbums(mediaPath);
     app.get('/db', (_, res) => {
@@ -32,13 +35,29 @@ module.exports = {
       );
     });
 
-    app.get('/media/:filePath(*.wav)', (req, res) => {
+    app.get('/media/:filePath(*.wav)', ({
+      params: { filePath }, range
+    }, res) => {
       wavDecoder.decode(
-        `${mediaPath}/${req.params.filePath}`, true,
+        `${mediaPath}/${filePath}`, true,
         (samples, sampleRate, buf) => {
           res.set('X-Positron-Samples', samples);
           res.set('X-Positron-SampleRate', sampleRate);
-          res.end(Buffer.from(buf));
+          const sampleSize = 4*2; // float * stereo
+          if(range) {
+            res.range({
+              first: range.first,
+              last: range.last,
+              length: buf.byteLength/sampleSize
+            });
+            res.end(Buffer.from(
+              buf,
+              range.first*sampleSize,
+              (range.last-range.first+1)*sampleSize
+            ));
+          } else {
+            res.end(Buffer.from(buf));
+          }
         }
       );
     });

@@ -38,7 +38,7 @@ positronBrowser.on('serviceUp', ({ addresses, port, name }) => {
   }
 });
 
-// Remoe peer
+// Remove peer
 positronBrowser.on('serviceDown', ({ name: peerName }) => {
   delete positronPeers[peerName];
   Object.entries(positronAlbums).forEach(([name, album]) => {
