@@ -66,20 +66,21 @@ function playTrack(album, track) {
   player.pause();
   player.disconnect();
   const firstPeer = Object.values(album.peers)[0];
+  const urlList = Object.values(album.peers)
+    .map(p => `http://${p}/${track.file}`);
   switch(track.fileType) {
     case "WAV":
       player = connectPlayer(wavPlayer);
-      player.play(Object.values(album.peers)
-        .map(p => `http://${p}/${track.file}`));
+      player.play(urlList);
       break;
     case "MP3":
     case "FLAC":
       player = connectPlayer(audioPlayer);
-      player.play(`http://${firstPeer}/${track.file}`);
+      player.play(urlList[0]);
       break;
     default:
       player = connectPlayer(videoPlayer, true);
-      player.play(`http://${firstPeer}/${track.file}`);
+      player.play(urlList, track.fileType);
       break;
   }
 }

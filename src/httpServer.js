@@ -13,7 +13,11 @@ module.exports = {
     const app = express();
 
     app.use(cors({
-      exposedHeaders: ['X-Positron-Samples', 'X-Positron-SampleRate']
+      exposedHeaders: [
+        'Content-Length',
+        'X-Positron-Samples',
+        'X-Positron-SampleRate'
+      ]
     }));
 
     app.use(range({ accept: 'samples' }));

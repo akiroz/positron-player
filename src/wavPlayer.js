@@ -68,7 +68,7 @@ class WavPlayer {
       const leftBuf = this.buf.getChannelData(0);
       const rightBuf = this.buf.getChannelData(1);
       const chunks = 8;
-      let chunkSize = Math.floor(this.samples / chunks);
+      const chunkSize = Math.floor(this.samples / chunks);
       for(let i = 0; i < chunks; i++) {
         const src = urlList[i % urlList.length];
         const off = i*chunkSize;

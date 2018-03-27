@@ -4,6 +4,7 @@ class VideoPlayer {
     this.ctx = audioCtx;
     this.video = document.querySelector(video);
     this.video.autoplay = true;
+    this.fileType = null;
     this.src = this.ctx.createMediaElementSource(this.video);
     this.onPlayStateChange = null;
     this.onProgressUpdate = null;
@@ -21,20 +22,38 @@ class VideoPlayer {
     this.src.disconnect();
   }
   isPlaying() {
-    return !this.video.paused;
+    return (this.fileType !== "BMP")? !this.video.paused: true;
   }
-  play(fileName) {
-    if(fileName) {
-      this.video.src = fileName;
+  async play(urlList, fileType) {
+    this.fileType = fileType;
+    if(fileType === "BMP") {
+      const { headers } = await fetch(urlList[0], {method: 'head'});
+      const length = headers.get('Content-Length');
+      const chunks = 8;
+      const chunkSize = Math.floor(length/chunks);
+      let parts = [];
+      for(let i = 0; i < chunks; i++) {
+        const src = urlList[i % urlList.length];
+        const off = i*chunkSize;
+        const len = (i < chunks-1)? chunkSize: length - chunkSize*i;
+        console.log({ off, len });
+        const resp = await fetch(src, {headers: {
+          Range: `bytes=${off}-${off+len-1}`
+        }});
+        parts.push(await resp.arrayBuffer());
+      }
+      this.video.poster = URL.createObjectURL(new Blob(parts));
+      this.video.src = '';
     } else {
-      this.video.play();
+      if(urlList) this.video.src = urlList[0];
+      else this.video.play();
     }
     if(this.onPlayStateChange) {
       this.onPlayStateChange(true);
     }
   }
   pause() {
-    this.video.pause();
+    if(this.fileType !== "BMP") this.video.pause();
     if(this.onPlayStateChange) {
       this.onPlayStateChange(false);
     }

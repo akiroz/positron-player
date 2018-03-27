@@ -45,7 +45,7 @@ footer {
   max-height: calc(100vh - 3rem) !important;
 }
 
-video {
+#video-section > video {
   width: 100%;
 }
 
